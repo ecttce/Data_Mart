@@ -1,0 +1,24 @@
+services:
+  database:
+    image: postgres:16
+    container_name: data_mart
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./DB/01_CREATE_TABLES.sql:/docker-entrypoint-initdb.d/01_CREATE_TABLES.sql:ro
+      - ./DB/02_CREATE_DUMMY_DATA.sql:/docker-entrypoint-initdb.d/02_CREATE_DUMMY_DATA.sql:ro
+    ports:
+      - "5432:5432"
+    networks:
+      - appnet
+
+networks:
+  appnet:
+    driver: bridge
+
+volumes:
+  db_data:
