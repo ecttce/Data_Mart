@@ -8,7 +8,7 @@ Dieses Repository enthält die vollständige PostgreSQL-Datenbankimplementierung
 
 ## Datenbankstruktur
 
-### Tabellen (13 gesamt)
+### Tabellen (14 gesamt)
 
 | Tabelle | Beschreibung |
 |---|---|
@@ -31,7 +31,7 @@ Dieses Repository enthält die vollständige PostgreSQL-Datenbankimplementierung
 
 | Kennzahl | Wert |
 |---|---|
-| Tabellen gesamt | 13 |
+| Tabellen gesamt | 14 |
 | Datensätze gesamt | ~165 |
 | Fremdschlüsselbeziehungen | 18 |
 | Ternäre Beziehungen | 3 |
