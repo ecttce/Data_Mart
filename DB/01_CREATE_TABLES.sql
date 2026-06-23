@@ -21,6 +21,15 @@ CREATE TABLE IF NOT EXISTS book_conditions (
     description         TEXT
 );
 
+-- VERBESSERUNG: Separate authors-Tabelle für bessere 3NF-Normalisierung
+CREATE TABLE IF NOT EXISTS authors (
+    author_id   SERIAL PRIMARY KEY,
+    first_name  VARCHAR(100) NOT NULL,
+    last_name   VARCHAR(100) NOT NULL,
+    birth_year  SMALLINT,
+    nationality VARCHAR(100)
+);
+
 CREATE TABLE IF NOT EXISTS users ( 
     user_id             SERIAL PRIMARY KEY,
     first_name          VARCHAR(100) NOT NULL,
@@ -37,16 +46,25 @@ CREATE TABLE IF NOT EXISTS users (
     is_active           BOOLEAN NOT NULL DEFAULT TRUE
 );
 
-CREATE TABLE IF NOT EXISTS books ( 
-    book_id             SERIAL PRIMARY KEY,
-    isbn                VARCHAR(20) UNIQUE,
-    title               VARCHAR(300) NOT NULL,
-    author              VARCHAR(200) NOT NULL,
-    publisher_id        INT REFERENCES publishers(publisher_id),
-    genre_id            INT REFERENCES genres(genre_id),
-    language_id         INT REFERENCES languages(language_id),
-    year_published      SMALLINT,
-    description         TEXT
+CREATE TABLE IF NOT EXISTS books (
+    book_id        SERIAL PRIMARY KEY,
+    isbn           VARCHAR(20) UNIQUE,
+    title          VARCHAR(300) NOT NULL,
+    -- author bleibt als Fallback für Legacy-Daten, neu: author_id FK
+    author         VARCHAR(200),
+    author_id      INT REFERENCES authors(author_id),
+    publisher_id   INT REFERENCES publishers(publisher_id),
+    genre_id       INT REFERENCES genres(genre_id),
+    language_id    INT REFERENCES languages(language_id),
+    year_published SMALLINT,
+    description    TEXT
+);
+
+-- M:N zwischen books und authors (ein Buch kann mehrere Autoren haben)
+CREATE TABLE IF NOT EXISTS book_authors (
+    book_id   INT NOT NULL REFERENCES books(book_id) ON DELETE CASCADE,
+    author_id INT NOT NULL REFERENCES authors(author_id) ON DELETE CASCADE,
+    PRIMARY KEY (book_id, author_id)
 );
 
 CREATE TABLE IF NOT EXISTS book_copies ( 
@@ -118,9 +136,57 @@ CREATE TABLE IF NOT EXISTS wishlist (
 -- ============================================================
 -- INDEXES for performance
 -- ============================================================
-CREATE INDEX IF NOT EXISTS idx_book_copies_owner ON book_copies(owner_id);
-CREATE INDEX IF NOT EXISTS idx_book_copies_book  ON book_copies(book_id);
-CREATE INDEX IF NOT EXISTS idx_loans_borrower    ON loans(borrower_id);
-CREATE INDEX IF NOT EXISTS idx_loans_copy        ON loans(copy_id);
-CREATE INDEX IF NOT EXISTS idx_ratings_book      ON ratings(book_id);
-CREATE INDEX IF NOT EXISTS idx_messages_receiver ON messages(receiver_id);
+CREATE INDEX IF NOT EXISTS idx_book_copies_owner    ON book_copies(owner_id);
+CREATE INDEX IF NOT EXISTS idx_book_copies_book     ON book_copies(book_id);
+CREATE INDEX IF NOT EXISTS idx_loans_borrower       ON loans(borrower_id);
+CREATE INDEX IF NOT EXISTS idx_loans_copy           ON loans(copy_id);
+CREATE INDEX IF NOT EXISTS idx_loans_status         ON loans(status);
+CREATE INDEX IF NOT EXISTS idx_ratings_book         ON ratings(book_id);
+CREATE INDEX IF NOT EXISTS idx_messages_receiver    ON messages(receiver_id);
+CREATE INDEX IF NOT EXISTS idx_messages_sender      ON messages(sender_id);
+CREATE INDEX IF NOT EXISTS idx_wishlist_user        ON wishlist(user_id);
+CREATE INDEX IF NOT EXISTS idx_time_slots_copy      ON time_slots(copy_id);
+CREATE INDEX IF NOT EXISTS idx_book_authors_book    ON book_authors(book_id);
+CREATE INDEX IF NOT EXISTS idx_book_authors_author  ON book_authors(author_id);
+
+-- ============================================================
+-- Trigger für automatische Statusänderungen
+-- (VERBESSERUNG: Geschäftslogik über Trigger)
+-- ============================================================
+
+-- Funktion: Setzt überfällige Ausleihen automatisch auf 'overdue'
+CREATE OR REPLACE FUNCTION fn_update_overdue_loans()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE loans
+    SET status = 'overdue'
+    WHERE status = 'active'
+      AND due_date < CURRENT_DATE
+      AND returned_at IS NULL;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger: Wird täglich bei jedem INSERT auf loans ausgeführt
+CREATE OR REPLACE TRIGGER trg_check_overdue
+    AFTER INSERT ON loans
+    FOR EACH STATEMENT
+    EXECUTE FUNCTION fn_update_overdue_loans();
+
+-- Funktion: Setzt is_available = FALSE wenn Ausleihe aktiv wird
+CREATE OR REPLACE FUNCTION fn_set_copy_unavailable()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.status = 'active' THEN
+        UPDATE book_copies SET is_available = FALSE WHERE copy_id = NEW.copy_id;
+    ELSIF NEW.status IN ('returned', 'cancelled') THEN
+        UPDATE book_copies SET is_available = TRUE WHERE copy_id = NEW.copy_id;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER trg_loan_availability
+    AFTER INSERT OR UPDATE OF status ON loans
+    FOR EACH ROW
+    EXECUTE FUNCTION fn_set_copy_unavailable();

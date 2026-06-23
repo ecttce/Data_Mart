@@ -72,6 +72,26 @@ VALUES
 ('Poor', 'Significant damage, but readable'),
 ('Defective', 'Pages missing or severely damaged');
 
+-- VERBESSERUNG: Autoren in eigener Tabelle
+INSERT INTO authors 
+(
+    first_name, 
+    last_name, birth_year, nationality
+) 
+VALUES
+('Hermann',   'Hesse',      1877, 'German'),
+('Patrick',   'Süskind',    1949, 'German'),
+('Umberto',   'Eco',        1932, 'Italian'),
+('Douglas',   'Adams',      1952, 'British'),
+('Gerhart',   'Hauptmann',  1862, 'German'),
+('Max',       'Frisch',     1911, 'Swiss'),
+('Jostein',   'Gaarder',    1952, 'Norwegian'),
+('Frank',     'Herbert',    1920, 'American'),
+('Franz',     'Kafka',      1883, 'Bohemian'),
+('Thomas',    'Mann',       1875, 'German'),
+('Paulo',     'Coelho',     1947, 'Brazilian'),
+('Harper',    'Lee',        1926, 'American');
+
 -- users
 INSERT INTO users (first_name, last_name, email, phone, street, city, postal_code, country, latitude, longitude) 
 VALUES
@@ -113,44 +133,48 @@ VALUES
 );
 
 -- books
-INSERT INTO books (isbn, title, author, publisher_id, genre_id, language_id, year_published, description)
+INSERT INTO books (isbn, title, author, author_id, publisher_id, genre_id, language_id, year_published, description)
 VALUES
 (
- '978-3-518-41404-0', 'Steppenwolf', 'Hermann Hesse', 1, 1, 1, 1927, 'A German literary classic exploring alienation, identity, and the duality of human nature.'
+ '978-3-518-41404-0', 'Steppenwolf', 'Hermann Hesse', 1, 1, 1, 1, 1927, 'A German literary classic exploring alienation, identity, and the duality of human nature.'
 ),
 (
- '978-3-423-13522-3', 'Perfume: The Story of a Murderer', 'Patrick Süskind', 7, 1, 1, 1985, 'A darkly obsessive tale of a murderer in 18th-century France driven by an extraordinary sense of smell.'
+ '978-3-423-13522-3', 'Perfume: The Story of a Murderer', 'Patrick Süskind', 2, 7, 1, 1, 1985, 'A darkly obsessive tale of a murderer in 18th-century France driven by an extraordinary sense of smell.'
 ),
 (
- '978-3-499-22765-5', 'The Name of the Rose', 'Umberto Eco', 3, 3, 1, 1986, 'A medieval monastery mystery steeped in symbolism, philosophy, and theological intrigue.'
+ '978-3-499-22765-5', 'The Name of the Rose', 'Umberto Eco', 3, 3, 3, 1, 1986, 'A medieval monastery mystery steeped in symbolism, philosophy, and theological intrigue.'
 ),
 (
- '978-0-7432-7356-5', 'The Hitchhiker''s Guide to the Galaxy', 'Douglas Adams', 5, 2, 2, 1979, 'A wildly comic science fiction adventure following the accidental destruction of Earth.'
+ '978-0-7432-7356-5', 'The Hitchhiker''s Guide to the Galaxy', 'Douglas Adams', 4, 5, 2, 2, 1979, 'A wildly comic science fiction adventure following the accidental destruction of Earth.'
 ),
 (
- '978-3-257-06401-1', 'Bahnwärter Thiel', 'Gerhart Hauptmann', 6, 8, 1, 1888, 'A German novella exploring guilt, fate, and the overwhelming force of nature.'
+ '978-3-257-06401-1', 'Bahnwärter Thiel', 'Gerhart Hauptmann', 5, 6, 8, 1, 1888, 'A German novella exploring guilt, fate, and the overwhelming force of nature.'
 ),
 (
- '978-3-446-20387-6', 'Homo Faber', 'Max Frisch', 6, 1, 1, 1957, 'A rationalist engineer confronts fate and emotion in this landmark of modern German-language literature.'
+ '978-3-446-20387-6', 'Homo Faber', 'Max Frisch', 6, 6, 1, 1, 1957, 'A rationalist engineer confronts fate and emotion in this landmark of modern German-language literature.'
 ),
 (
- '978-3-10-397077-8', 'Sophie''s World', 'Jostein Gaarder', 8, 5, 1, 1993, 'A history of Western philosophy told as a gripping coming-of-age novel.'
+ '978-3-10-397077-8', 'Sophie''s World', 'Jostein Gaarder', 7, 8, 5, 1, 1993, 'A history of Western philosophy told as a gripping coming-of-age novel.'
 ),
 (
- '978-3-453-31628-0', 'Dune', 'Frank Herbert', 7, 2, 1, 2019, 'An epic science fiction saga of power, religion, and ecology set on a desert planet.'
+ '978-3-453-31628-0', 'Dune', 'Frank Herbert', 8, 7, 2, 1, 2019, 'An epic science fiction saga of power, religion, and ecology set on a desert planet.'
 ),
 (
- '978-3-596-29752-4', 'The Metamorphosis', 'Franz Kafka', 7, 1, 1, 1915, 'Kafka at his most iconic — a man wakes up transformed into an insect in this unsettling masterpiece.'
+ '978-3-596-29752-4', 'The Metamorphosis', 'Franz Kafka', 9, 7, 1, 1, 1915, 'Kafka at his most iconic — a man wakes up transformed into an insect in this unsettling masterpiece.'
 ),
 (
- '978-3-423-21190-4', 'Buddenbrooks', 'Thomas Mann', 7, 8, 1, 1901, 'A sweeping family saga tracing the decline of a wealthy merchant dynasty over four generations.'
+ '978-3-423-21190-4', 'Buddenbrooks', 'Thomas Mann', 10, 7, 8, 1, 1901, 'A sweeping family saga tracing the decline of a wealthy merchant dynasty over four generations.'
 ),
 (
- '978-3-8321-6065-0', 'The Alchemist', 'Paulo Coelho', 7, 1, 1, 1993, 'A philosophical parable about following your dreams and discovering your personal destiny.'
+ '978-3-8321-6065-0', 'The Alchemist', 'Paulo Coelho', 11, 7, 1, 1, 1993, 'A philosophical parable about following your dreams and discovering your personal destiny.'
 ),
 (
- '978-0-06-112008-4', 'To Kill a Mockingbird', 'Harper Lee', 5, 1, 2, 1960, 'A landmark American novel confronting racial injustice and moral courage in the Deep South.'
+ '978-0-06-112008-4', 'To Kill a Mockingbird', 'Harper Lee', 12, 5, 1, 2, 1960, 'A landmark American novel confronting racial injustice and moral courage in the Deep South.'
 );
+
+-- M:N book_authors befüllen
+INSERT INTO book_authors (book_id, author_id)
+SELECT b.book_id, b.author_id FROM books b WHERE b.author_id IS NOT NULL;
 
 -- book_copies
 INSERT INTO book_copies
@@ -191,6 +215,7 @@ INSERT INTO time_slots
 )
 VALUES
 (1, 1, '09:00', '12:00'),
+(1, 3, '14:00', '17:00'),  -- Exemplar 1 hat jetzt 2 Zeitslots
 (2, 2, '14:00', '17:00'),
 (3, 3, '10:00', '13:00'),
 (4, 4, '15:00', '18:00'),
@@ -201,7 +226,8 @@ VALUES
 (9, 2, '08:00', '10:00'),
 (10, 3, '13:00', '16:00'),
 (11, 4, '17:00', '20:00'),
-(12, 5, '09:00', '12:00');
+(12, 5, '09:00', '12:00'),
+(12, 0, '10:00', '13:00'); -- Exemplar 12 hat jetzt 2 Zeitslots
 
 -- loans
 INSERT INTO loans
